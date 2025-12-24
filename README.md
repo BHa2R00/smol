@@ -2,6 +2,7 @@
 \\(^ n ^)/ a smol hardware and software design of cpu 
 
 ## hw.lisp options:
+<pre>
 -h help
 -g debug on
 -data <data section base addr>
@@ -11,4 +12,4 @@ asm
     -o <output memh>
 bin 
     -o <output binary>
-
+</pre>
