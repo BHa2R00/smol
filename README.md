@@ -14,6 +14,10 @@ asm
 bin 
     -o [output binary]
 </pre>
+for example: 
+<pre>
+./sw.lisp asm -i test1.asm -o rom.memh 
+</pre>
 
 # hardware
 ## simulation
