@@ -5,11 +5,11 @@
 <pre>
 -h help
 -g debug on
--data <data section base addr>
+-data [data section base addr]
 asm 
     -print-all-insts 
-    -i <input asm file>
-    -o <output memh>
+    -i [input asm file]
+    -o [output memh]
 bin 
-    -o <output binary>
+    -o [output binary]
 </pre>
