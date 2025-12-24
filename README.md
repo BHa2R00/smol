@@ -1,5 +1,5 @@
 # smol
-\\(^ n ^)/ a smol cpu hardware and software design
+\\(^ n ^)/ a smol cpu hardware and software design based on the <a href='https://en.wikipedia.org/wiki/Hack_computer'>hack computer</a>
 
 # software
 ## hw.lisp options:
