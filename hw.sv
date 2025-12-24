@@ -170,7 +170,7 @@ always@(negedge rstb or posedge clk) begin
   if(!rstb) begin
     ready = 0;
     for(k=ram;k<=size-1;k=k+1) mem[k] = 0;
-    $readmemh("236.memh", mem);
+    $readmemh("rom.memh", mem);
     mem[entry_a0] = 0;
     mem[entry_a1] = 0;
     mem[io_c_a0] = io;
@@ -229,11 +229,11 @@ wire [7:0] ram_0x0f = top.mem[top.ram+'h0f];
 
 initial begin
  `ifdef FST
-  $dumpfile("236.fst");
+  $dumpfile("hw.fst");
   $dumpvars(0,tb);
   `endif
   `ifdef FSDB
-  $fsdbDumpfile("236.fsdb");
+  $fsdbDumpfile("hw.fsdb");
   $fsdbDumpvars(0,tb);
   `endif
   $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x",
