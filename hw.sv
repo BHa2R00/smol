@@ -129,7 +129,7 @@ module top
   input rstb, clk 
 );
 
-localparam data ='h100;
+localparam data ='h1000;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
@@ -141,7 +141,7 @@ localparam io_oe_a0 = data+'h4;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] dev[data+'h0:data+'h4];
-localparam size = 'h200;
+localparam size = 'h1100;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] ram[data+'h5:size-1];
@@ -221,7 +221,7 @@ top top
   .rstb(rstb), .clk(clk) 
 );
 
-always #3 clk = ~clk;
+always #10 clk = ~clk;
 wire [7:0] ram_0x00 = top.dev[top.data+'h00];
 wire [7:0] ram_0x01 = top.dev[top.data+'h01];
 wire [7:0] ram_0x02 = top.dev[top.data+'h02];
@@ -241,11 +241,11 @@ wire [7:0] ram_0x0f = top.ram[top.data+'h0f];
 
 initial begin
  `ifdef FST
-  $dumpfile("hw.fst");
+  $dumpfile("236.fst");
   $dumpvars(0,tb);
   `endif
   `ifdef FSDB
-  $fsdbDumpfile("hw.fsdb");
+  $fsdbDumpfile("236.fsdb");
   $fsdbDumpvars(0,tb);
   `endif
   $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x",
