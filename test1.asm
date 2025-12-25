@@ -17,5 +17,12 @@
   (set io_i_a0 (eval c))
   (jlt _loop (eval c) 80)
 )
+((v #(1 2 3 4))
+((c "shit") (set io_i_a0 c))
+ (set io_i_a0 (const v)))
+(set baud (const 5))
+(set io_i_a0 (const #x1))
+(set io_oe_a0 (const #x1))
+((c "shit") (set v1 (eval c)) (tx (const c)))
 
 (quit)
