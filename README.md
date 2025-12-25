@@ -44,7 +44,8 @@ jlt : jump if alu output <0<br>
 jle : jump if alu output <=0<br>
 jmp : jump <br>
 #### example
-AD=!A!^<<D?JLE means: alu=~(bitflip((~A)<<D)), A=alu, D=alu, if alu<=0 then jump to A 
+AD=!A!^<<D?JLE means in one cycle do: <br>
+  alu=~(bitflip((~A)<<D)), A=alu, D=alu, if alu<=0 then jump to A 
 ### program
 include file : (inc path)<br>
 expand macro : (macroname argvs... )<br>
