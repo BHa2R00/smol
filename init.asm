@@ -1,4 +1,4 @@
-;; device 
+;; dev section 
 (entry_a0 1)
 (entry_a1 1)
 ( io_c_a0 1)
@@ -13,6 +13,8 @@
 (1+ (s) s D=M+1)
 (decf (s) (1- s) M=D)
 (incf (s) (1+ s) M=D)
+(or (a b) a D=M b D=DVM)
+(and (a b) a D=M b D=D&M)
 (+ (a b) a D=M b D=D+M)
 (- (a b) a D=M b D=D-M)
 (jeq (s e v) e v D=D-A s D?JEQ)
@@ -27,3 +29,16 @@
 (0<< (k) k D=A 1 D=A!<<D)
 ;; stack 
 (sp 1)
+;; counter 
+(nop (e) e (_nop) _nop D=D-1?JGT)
+;; uart
+(baud 1)
+(tx (c) 
+  (set io_i_a0 (const 0)) (nop (eval baud))
+  (set io_i_a0 c) (nop (eval baud))
+  ((k (1 2 3 4 5 6 7))
+    (set io_i_a0 (<< (eval io_i_a0) -1))
+    (nop (eval baud))
+    )
+  (set io_i_a0 (const 1)) (nop (eval baud))
+  )
