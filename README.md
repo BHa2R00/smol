@@ -17,7 +17,7 @@ bin
 </pre>
 for example: 
 <pre>
-./sw.lisp asm -i test1.asm -o rom.memh 
+./sw.lisp asm -i test1.asm -o rom.memh bin -o rom.bin 
 </pre>
 
 # hardware
@@ -31,6 +31,7 @@ iverilog -g2012 -DSIM -DFST hw.sv -s tb
 ### EP4CE6E22C8
 <pre>
 quartus_sh -t EP4CE6E22C8.tcl
+quartus_cpf -c EP4CE6E22C8.cof
 </pre>
 
 <pre>
