@@ -22,36 +22,36 @@ for example:
 ## syntax
 ### instructions
 #### registors
-p[15:0] : pc, start from entry, halt when PC==0xffff
-i[15:0] : instruction
-a[15:0] : from i to addr
-d[15:0] 
-m[15:0] : rdata, signed
+p[15:0] : pc, start from entry, halt when PC==0xffff<br>
+i[15:0] : instruction<br>
+a[15:0] : from i to addr<br>
+d[15:0] <br>
+m[15:0] : rdata, signed<br>
 #### src
 read y input of alu from a or m
 #### alu 
-constant operators: c0, c1, c-1
-prefix unary operators: ^, !, 1+, 1-, -
-infix binary operators: &, v, +, -, << 
+constant operators: c0, c1, c-1<br>
+prefix unary operators: ^, !, 1+, 1-, -<br>
+infix binary operators: &, v, +, -, << <br>
 #### dst
 write alu output to a, d, m, or nowhere
 #### jmp
-jeq : jump if alu output ==0
-jne : jump if alu output !=0
-jgt : jump if alu output >0
-jge : jump if alu output >=0
-jlt : jump if alu output <0
-jle : jump if alu output <=0
-jmp : jump 
+jeq : jump if alu output ==0<br>
+jne : jump if alu output !=0<br>
+jgt : jump if alu output >0<br>
+jge : jump if alu output >=0<br>
+jlt : jump if alu output <0<br>
+jle : jump if alu output <=0<br>
+jmp : jump <br>
 #### example
 AD=!A!^<<D?JLE means: alu=~(bitflip((~A)<<D)), A=alu, D=alu, if alu<=0 then jump to A 
 ### program
-include file : (inc path)
-expand macro : (macroname argvs... )
-lambda : ((binds... ) body... )
-define macro : (macroname (args... ) body... )
-define value : (name bytes)
-constant number : number 
+include file : (inc path)<br>
+expand macro : (macroname argvs... )<br>
+lambda : ((binds... ) body... )<br>
+define macro : (macroname (args... ) body... )<br>
+define value : (name bytes)<br>
+constant number : number <br>
 #### example
 <pre>
 (const (n) n D=A)
