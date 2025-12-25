@@ -19,6 +19,55 @@ for example:
 <pre>
 ./sw.lisp asm -i test1.asm -o rom.memh bin -o rom.bin 
 </pre>
+## syntax
+### instructions
+#### registors
+p[15:0] : pc, start from entry, halt when PC==0xffff
+i[15:0] : instruction
+a[15:0] : from i to addr
+d[15:0] 
+m[15:0] : rdata, signed
+#### src
+read y input of alu from a or m
+#### alu 
+constant operators: c0, c1, c-1
+prefix unary operators: ^, !, 1+, 1-, -
+infix binary operators: &, v, +, -, << 
+#### dst
+write alu output to a, d, m, or nowhere
+#### jmp
+jeq : jump if alu output ==0
+jne : jump if alu output !=0
+jgt : jump if alu output >0
+jge : jump if alu output >=0
+jlt : jump if alu output <0
+jle : jump if alu output <=0
+jmp : jump 
+#### example
+AD=!A!^<<D?JLE means: alu=~(bitflip((~A)<<D)), A=alu, D=alu, if alu<=0 then jump to A 
+### program
+include file : (inc path)
+expand macro : (macroname argvs... )
+lambda : ((binds... ) body... )
+define macro : (macroname (args... ) body... )
+define value : (name bytes)
+constant number : number 
+#### example
+<pre>
+(const (n) n D=A)
+(eval (s) s D=M)
+(set (s e) e s M=D)
+(+ (a b) a D=M b D=D+M)
+(jlt (s e v) e v D=D-A s D?JLT)
+(a1 1) (b1 1) (c1 1) 
+(((a a1) (b b1) (c c1))  
+  (set a (const 1)) (set b (const 1)) (set c (const 1))
+  (_loop)
+  (set a (eval b)) (set b (eval c))
+  (set c (+ a b))
+  (jlt _loop (eval c) 80)
+)
+</pre>
 
 # hardware
 ## simulation
@@ -27,8 +76,9 @@ iverilog -g2012 -DSIM -DFST hw.sv -s tb
 ./a.out -fst 
 </pre>
 
-## quartus
-### EP4CE6E22C8
+## fpga
+### quartus
+#### EP4CE6E22C8
 <pre>
 quartus_sh -t EP4CE6E22C8.tcl
 quartus_cpf -c EP4CE6E22C8.cof
