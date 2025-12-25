@@ -21,7 +21,7 @@ for example:
 </pre>
 ## syntax
 ### instructions
-#### registors
+#### registers
 p[15:0] : pc, start from entry, halt when PC==0xffff<br>
 i[15:0] : instruction<br>
 a[15:0] : from i to addr<br>
@@ -49,10 +49,11 @@ AD=!A!^<<D?JLE means in one cycle do: <br>
 ### program
 include file : (inc path)<br>
 expand macro : (macroname argvs... )<br>
+map : ((char/value "string"/#(vector)) body... )<br>
 lambda : ((binds... ) body... )<br>
 define macro : (macroname (args... ) body... )<br>
 define value : (name bytes)<br>
-constant number : number <br>
+constant number : number, char <br>
 #### example
 <pre>
 (const (n) n D=A)
