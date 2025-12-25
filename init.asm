@@ -31,6 +31,33 @@
 (sp 1)
 ;; counter 
 (nop (e) e (_nop) _nop D=D-1?JGT)
+(wait_cnt 1)
+(wait (k j)
+ (set wait_cnt j)
+ (_wait)
+ (nop k)
+ (set wait_cnt (1- wait_cnt))
+ (eval wait_cnt)
+ _wait
+ D?JGT)
+(wait1_cnt 1)
+(wait1 (k j l)
+ (set wait1_cnt l)
+ (_wait1)
+ (wait k j)
+ (set wait1_cnt (1- wait1_cnt))
+ (eval wait1_cnt)
+ _wait1
+ D?JGT)
+(wait2_cnt 1)
+(wait2 (k j l m)
+ (set wait2_cnt l)
+ (_wait2)
+ (wait1 k j l)
+ (set wait2_cnt (1- wait2_cnt))
+ (eval wait2_cnt)
+ _wait2
+ D?JGT)
 ;; uart
 (baud 1)
 (tx (c) 
