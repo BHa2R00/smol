@@ -55,6 +55,7 @@ define macro : (macroname (args... ) body... )<br>
 define value : (name bytes)<br>
 constant number : number, char <br>
 #### example
+fibonacci
 <pre>
 (const (n) n D=A)
 (eval (s) s D=M)
@@ -69,6 +70,15 @@ constant number : number, char <br>
   (set c (+ a b))
   (jlt _loop (eval c) 80)
 )
+</pre>
+hellowhorld
+<pre>
+(inc "236_init.asm")
+(set io_i_a0 (const #x1))
+(set io_oe_a0 (const #x1))
+(set baud (const 18)) ;; delay for 115200 baudrate in 50MHz clock
+((c "hello world!") (tx (const c)))
+(quit)
 </pre>
 
 # hardware
