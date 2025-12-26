@@ -124,27 +124,29 @@ endmodule
 
 module top
 (
+  output [7:0] debug, 
   inout [7:0] io, 
   output halt,
   input rstb, clk 
 );
 
-localparam data ='h2000;
+localparam [23:0] data ='h2000;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
-localparam entry_a0 = data+'h0;
-localparam entry_a1 = data+'h1;
-localparam  io_c_a0 = data+'h2;
-localparam  io_i_a0 = data+'h3;
-localparam io_oe_a0 = data+'h4;
+localparam [23:0]  page_a0 = data+'h0;
+localparam [23:0] entry_a0 = data+'h1;
+localparam [23:0] entry_a1 = data+'h2;
+localparam [23:0]  io_c_a0 = data+'h3;
+localparam [23:0]  io_i_a0 = data+'h4;
+localparam [23:0] io_oe_a0 = data+'h5;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] dev[data+'h0:data+'h4];
-localparam size = 'h2100;
+reg [7:0] dev[data+'h0:data+'h5];
+localparam [23:0] size = 'h2100;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] ram[data+'h5:size-1];
+reg [7:0] ram[data+'h6:size-1];
 reg          ready;
 reg  [ 7: 0] rdata;
 wire [ 7: 0] wdata;
@@ -173,29 +175,37 @@ for(io_k=0;io_k<=7;io_k=io_k+1) begin : io_bth
 assign io[io_k] = io_oe[io_k] ? io_i[io_k] : 1'bz;
 end
 endgenerate
-wire sel_rom = &{addr>=0,addr<=data-1};
-wire sel_dev = &{addr>=data+'h0,addr<=data+'h4};
-wire sel_ram = &{addr>=data+'h5,addr<=size-1};
+wire [23:0] ADDR = {dev[page_a0],addr};
+wire sel_rom = &{ADDR>=0,ADDR<=data-1};
+wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h5};
+wire sel_ram = &{ADDR>=data+'h6,ADDR<=size-1};
 reg [7:0] rdata_rom, rdata_dev, rdata_ram;
-always@(negedge rstb or posedge clk) if(!rstb) ready <= 1'b0; else ready <= valid;
 initial $readmemh("rom.memh", rom);
 always@(negedge rstb or posedge clk) begin
   if(!rstb) begin
+    ready <= 1'b0;
+    dev[page_a0] = 0;
     dev[entry_a0] = 0;
     dev[entry_a1] = 0;
     dev[io_c_a0] = io;
   end
   else begin
+    ready <= valid;
     if(&{~ready,valid,sel_dev}) begin
-      if(write) dev[addr] = wdata;
-      else rdata_dev = dev[addr];
+      if(write) dev[ADDR] = wdata;
+      else rdata_dev = dev[ADDR];
     end
     dev[io_c_a0] = io;
   end
 end
-always@(posedge clk) if(&{~ready,valid,sel_ram}) if(write) ram[addr] <= wdata; else rdata_ram <= ram[addr];
+always@(posedge clk) begin
+  if(&{~ready,valid,sel_ram}) begin
+    if(write) ram[ADDR] <= wdata; 
+    else rdata_ram <= ram[ADDR];
+  end
+end
 always@(*) begin
-  rdata_rom = rom[addr];
+  rdata_rom = rom[ADDR];
   entry[7:0] = dev[entry_a0];
   entry[15:8] = dev[entry_a1];
   io_i = dev[io_i_a0];
@@ -204,6 +214,10 @@ always@(*) begin
   else if(sel_dev) rdata = rdata_dev;
   else rdata = rdata_ram;
 end
+
+assign debug[0] = io[0];
+assign debug[1] = io[1];
+assign debug[2] = io[2];
 
 endmodule
 
@@ -227,7 +241,7 @@ wire [7:0] ram_0x01 = top.dev[top.data+'h01];
 wire [7:0] ram_0x02 = top.dev[top.data+'h02];
 wire [7:0] ram_0x03 = top.dev[top.data+'h03];
 wire [7:0] ram_0x04 = top.dev[top.data+'h04];
-wire [7:0] ram_0x05 = top.ram[top.data+'h05];
+wire [7:0] ram_0x05 = top.dev[top.data+'h05];
 wire [7:0] ram_0x06 = top.ram[top.data+'h06];
 wire [7:0] ram_0x07 = top.ram[top.data+'h07];
 wire [7:0] ram_0x08 = top.ram[top.data+'h08];
@@ -238,6 +252,14 @@ wire [7:0] ram_0x0c = top.ram[top.data+'h0c];
 wire [7:0] ram_0x0d = top.ram[top.data+'h0d];
 wire [7:0] ram_0x0e = top.ram[top.data+'h0e];
 wire [7:0] ram_0x0f = top.ram[top.data+'h0f];
+
+reg key4;
+initial key4 = 0;
+always@(posedge clk) begin
+  repeat(10000) @(posedge clk);
+  key4 = ~key4;
+end
+assign io[2] = key4;
 
 initial begin
  `ifdef FST
