@@ -55,25 +55,9 @@ define macro : (macroname (args... ) body... )<br>
 define value : (name bytes)<br>
 constant number : number, char <br>
 #### example
-fibonacci
-<pre>
-(const (n) n D=A)
-(eval (s) s D=M)
-(set (s e) e s M=D)
-(+ (a b) a D=M b D=D+M)
-(jlt (s e v) e v D=D-A s D?JLT)
-(a1 1) (b1 1) (c1 1) 
-(((a a1) (b b1) (c c1))  
-  (set a (const 1)) (set b (const 1)) (set c (const 1))
-  (_loop)
-  (set a (eval b)) (set b (eval c))
-  (set c (+ a b))
-  (jlt _loop (eval c) 80)
-)
-</pre>
 hellowhorld
 <pre>
-(inc "236_init.asm")
+(inc "init.asm")
 (set io_i_a0 (const #x1))
 (set io_oe_a0 (const #x1))
 (set baud (const 18)) ;; delay for 115200 baudrate in 50MHz clock
