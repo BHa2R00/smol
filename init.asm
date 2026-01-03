@@ -5,6 +5,9 @@
 ( io_c_a0 1)
 ( io_i_a0 1)
 (io_oe_a0 1)
+(io_ie_a0 1)
+(io_os_a0 1)
+(io_is_a0 1)
 ;; basic 
 (quit () #xffff D?JMP)
 (const (n) n D=A)
@@ -61,12 +64,24 @@
  D?JGT)
 ;; uart
 (baud 1)
-(tx (c) 
+(uart_k 1)
+(uart_c 1)
+(putc (c) 
+  (set uart_c c)
   (set io_i_a0 (const 0)) (nop (eval baud))
-  (set io_i_a0 c) (nop (eval baud))
-  ((k (1 2 3 4 5 6 7))
-    (set io_i_a0 (<< (eval io_i_a0) -1))
-    (nop (eval baud))
-    )
+  (set io_i_a0 (eval uart_c)) (nop (eval baud))
+  (set uart_k (const 7)) (_putc) 
+  (set io_i_a0 (<< (eval io_i_a0) -1))
+  (nop (eval baud))
+  (decf uart_k) _putc D?JGT 
   (set io_i_a0 (const 1)) (nop (eval baud))
   )
+(getc ()
+  (_getc_rx0) (eval io_c_a0) _getc_rx0 D?JNE 
+  (set uart_c (const 0))
+  (nop (<< (eval baud) -1))
+  (set uart_k (const 7)) (_getc) 
+  (nop (eval baud))
+  (<< (eval uart_c) 1) io_c_a0 D=DVM uart_c M=D 
+  (decf uart_k) _getc D?JGT 
+  (const 8) uart_c D=M^<<D M=D)
