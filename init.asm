@@ -80,7 +80,7 @@
   (_getc_rx0) (eval io_c_a0) _getc_rx0 D?JNE 
   (set uart_c (const 0))
   (nop (<< (eval baud) -1))
-  (set uart_k (const 7)) (_getc) 
+  (set uart_k (const 8)) (_getc) 
   (nop (eval baud))
   (<< (eval uart_c) 1) io_c_a0 D=DVM uart_c M=D 
   (decf uart_k) _getc D?JGT 

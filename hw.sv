@@ -272,7 +272,7 @@ assign io[2] = key1;
 
 reg rx,uclk;
 initial uclk=0;
-always #4340.278 uclk=~uclk;
+always #13020.834 uclk=~uclk;
 always@(negedge rstb or posedge uclk) begin
   if(!rstb) rx=1;
   else begin
