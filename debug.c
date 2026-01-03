@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 
     char cmd[256];
     printf("SMOL Debugger\n");
-    printf("Commands: [s]tep, [b]ack, [r]egs, [a] <hex>, [d] <hex>, [m] <addr> [val], [q]uit\n");
+    printf("Commands: [s]tep, [b]ack, [r]egs, [m] <addr> [val], [q]uit\n");
 
     while (1) {
         printf("(smol) ");
@@ -115,12 +115,6 @@ int main(int argc, char *argv[]) {
             } else printf("No history.\n");
         } else if (cmd[0] == 'r') {
             printf("A: 0x%04X  D: 0x%04X  P: 0x%04X  I: 0x%04X\n", (uint16_t)cpu.a, (uint16_t)cpu.d, cpu.p, cpu.i);
-        } else if (cmd[0] == 'a') {
-            unsigned int v;
-            if (sscanf(cmd, "a %x", &v) == 1) { cpu.a = (int16_t)v; printf("A set to 0x%04X\n", (uint16_t)cpu.a); }
-        } else if (cmd[0] == 'd') {
-            unsigned int v;
-            if (sscanf(cmd, "d %x", &v) == 1) { cpu.d = (int16_t)v; printf("D set to 0x%04X\n", (uint16_t)cpu.d); }
         } else if (cmd[0] == 'm') {
             unsigned int m_addr, m_val;
             int args = sscanf(cmd, "m %x %x", &m_addr, &m_val);
