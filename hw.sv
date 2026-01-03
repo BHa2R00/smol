@@ -130,23 +130,30 @@ module top
   input rstb, clk 
 );
 
-localparam [23:0] data ='h2000;
+wire [23:0] ADDR;
+localparam [23:0] data = 'h2000;
+localparam [23:0] size = 'h2100;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
+wire sel_rom = &{ADDR>=0,ADDR<=data-1};
 localparam [23:0]  page_a0 = data+'h0;
 localparam [23:0] entry_a0 = data+'h1;
 localparam [23:0] entry_a1 = data+'h2;
 localparam [23:0]  io_c_a0 = data+'h3;
 localparam [23:0]  io_i_a0 = data+'h4;
 localparam [23:0] io_oe_a0 = data+'h5;
+localparam [23:0] io_ie_a0 = data+'h6;
+localparam [23:0] io_os_a0 = data+'h7;
+localparam [23:0] io_is_a0 = data+'h8;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] dev[data+'h0:data+'h5];
-localparam [23:0] size = 'h2100;
+reg [7:0] dev[data+'h0:data+'h8];
+wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h8};
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] ram[data+'h6:size-1];
+reg [7:0] ram[data+'h9:size-1];
+wire sel_ram = &{ADDR>=data+'h9,ADDR<=size-1};
 reg          ready;
 reg  [ 7: 0] rdata;
 wire [ 7: 0] wdata;
@@ -175,10 +182,7 @@ for(io_k=0;io_k<=7;io_k=io_k+1) begin : io_bth
 assign io[io_k] = io_oe[io_k] ? io_i[io_k] : 1'bz;
 end
 endgenerate
-wire [23:0] ADDR = {dev[page_a0],addr};
-wire sel_rom = &{ADDR>=0,ADDR<=data-1};
-wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h5};
-wire sel_ram = &{ADDR>=data+'h6,ADDR<=size-1};
+assign ADDR = {dev[page_a0],addr};
 reg [7:0] rdata_rom, rdata_dev, rdata_ram;
 initial $readmemh("rom.memh", rom);
 always@(negedge rstb or posedge clk) begin
@@ -187,7 +191,6 @@ always@(negedge rstb or posedge clk) begin
     dev[page_a0] = 0;
     dev[entry_a0] = 0;
     dev[entry_a1] = 0;
-    dev[io_c_a0] = io;
   end
   else begin
     ready <= valid;
@@ -195,21 +198,23 @@ always@(negedge rstb or posedge clk) begin
       if(write) dev[ADDR] = wdata;
       else rdata_dev = dev[ADDR];
     end
-    dev[io_c_a0] = io;
+    dev[io_c_a0] = ((io & dev[io_ie_a0]) >> dev[io_is_a0]);
   end
 end
 always@(posedge clk) begin
+  if(&{~ready,valid,sel_rom}) begin
+    rdata_rom <= rom[ADDR];
+  end
   if(&{~ready,valid,sel_ram}) begin
     if(write) ram[ADDR] <= wdata; 
     else rdata_ram <= ram[ADDR];
   end
 end
 always@(*) begin
-  rdata_rom = rom[ADDR];
   entry[7:0] = dev[entry_a0];
   entry[15:8] = dev[entry_a1];
-  io_i = dev[io_i_a0];
-  io_oe = dev[io_oe_a0];
+  io_i = dev[io_i_a0] << dev[io_os_a0];
+  io_oe = dev[io_oe_a0] << dev[io_os_a0];
   if(sel_rom) rdata = rdata_rom;
   else if(sel_dev) rdata = rdata_dev;
   else rdata = rdata_ram;
@@ -242,9 +247,9 @@ wire [7:0] ram_0x02 = top.dev[top.data+'h02];
 wire [7:0] ram_0x03 = top.dev[top.data+'h03];
 wire [7:0] ram_0x04 = top.dev[top.data+'h04];
 wire [7:0] ram_0x05 = top.dev[top.data+'h05];
-wire [7:0] ram_0x06 = top.ram[top.data+'h06];
-wire [7:0] ram_0x07 = top.ram[top.data+'h07];
-wire [7:0] ram_0x08 = top.ram[top.data+'h08];
+wire [7:0] ram_0x06 = top.dev[top.data+'h06];
+wire [7:0] ram_0x07 = top.dev[top.data+'h07];
+wire [7:0] ram_0x08 = top.dev[top.data+'h08];
 wire [7:0] ram_0x09 = top.ram[top.data+'h09];
 wire [7:0] ram_0x0a = top.ram[top.data+'h0a];
 wire [7:0] ram_0x0b = top.ram[top.data+'h0b];
@@ -252,14 +257,36 @@ wire [7:0] ram_0x0c = top.ram[top.data+'h0c];
 wire [7:0] ram_0x0d = top.ram[top.data+'h0d];
 wire [7:0] ram_0x0e = top.ram[top.data+'h0e];
 wire [7:0] ram_0x0f = top.ram[top.data+'h0f];
+wire [7:0] ram_0x10 = top.ram[top.data+'h10];
+wire [7:0] ram_0x11 = top.ram[top.data+'h11];
+wire [7:0] ram_0x12 = top.ram[top.data+'h12];
+wire [7:0] ram_0x13 = top.ram[top.data+'h13];
 
-reg key4;
-initial key4 = 0;
+reg key1;
+initial key1 = 0;
 always@(posedge clk) begin
-  repeat(10000) @(posedge clk);
-  key4 = ~key4;
+  repeat(100000) @(posedge clk);
+  key1 = ~key1;
 end
-assign io[2] = key4;
+assign io[2] = key1;
+
+reg rx,uclk;
+initial uclk=0;
+always #4340.278 uclk=~uclk;
+always@(negedge rstb or posedge uclk) begin
+  if(!rstb) rx=1;
+  else begin
+    repeat($urandom_range(5,50)) @(posedge uclk);
+    rx=0;
+    repeat(7) begin
+      @(posedge uclk);
+      rx=$urandom_range(0,1);
+    end
+    @(posedge uclk);
+    rx=1;
+  end
+end
+assign io[1] = rx;
 
 initial begin
  `ifdef FST
@@ -270,10 +297,11 @@ initial begin
   $fsdbDumpfile("hw.fsdb");
   $fsdbDumpvars(0,tb);
   `endif
-  $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x",
+  $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x",
   $time,
   ram_0x00, ram_0x01, ram_0x02, ram_0x03, ram_0x04, ram_0x05, ram_0x06, ram_0x07, 
   ram_0x08, ram_0x09, ram_0x0a, ram_0x0b, ram_0x0c, ram_0x0d, ram_0x0e, ram_0x0f, 
+  ram_0x10, ram_0x11, ram_0x12, ram_0x13, 
   );
   clk = 0;
   rstb = 0;
