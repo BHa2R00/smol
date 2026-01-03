@@ -64,6 +64,11 @@ hellowhorld
 ((c "hello world!") (tx (const c)))
 (quit)
 </pre>
+## debugger
+<pre>
+cc debug.c -o debug
+./debug rom.memh
+</pre>
 
 # hardware
 ## simulation
