@@ -140,12 +140,12 @@ wire sel_rom = &{ADDR>=0,ADDR<=data-1};
 localparam [23:0]  page_a0 = data+'h0;
 localparam [23:0] entry_a0 = data+'h1;
 localparam [23:0] entry_a1 = data+'h2;
-localparam [23:0]  io_c_a0 = data+'h3;
-localparam [23:0]  io_i_a0 = data+'h4;
-localparam [23:0] io_oe_a0 = data+'h5;
-localparam [23:0] io_ie_a0 = data+'h6;
-localparam [23:0] io_os_a0 = data+'h7;
-localparam [23:0] io_is_a0 = data+'h8;
+localparam [23:0] io_os_a0 = data+'h3;
+localparam [23:0] io_is_a0 = data+'h4;
+localparam [23:0]  io_c_a0 = data+'h5;
+localparam [23:0]  io_i_a0 = data+'h6;
+localparam [23:0] io_oe_a0 = data+'h7;
+localparam [23:0] io_ie_a0 = data+'h8;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] dev[data+'h0:data+'h8];
@@ -174,8 +174,9 @@ cpu cpu
   .halt  (halt),
   .clk   (clk)
 );
-reg [7:0] io_i;
-reg [7:0] io_oe;
+reg [7:0] io_i, io_c, io_oe, io_ie;
+wire signed [7:0] io_os = dev[io_os_a0];
+wire signed [7:0] io_is = dev[io_is_a0];
 generate
 genvar io_k;
 for(io_k=0;io_k<=7;io_k=io_k+1) begin : io_bth 
@@ -198,7 +199,7 @@ always@(negedge rstb or posedge clk) begin
       if(write) dev[ADDR] = wdata;
       else rdata_dev = dev[ADDR];
     end
-    dev[io_c_a0] = ((io & dev[io_ie_a0]) >> dev[io_is_a0]);
+    dev[io_c_a0] = io_c;
   end
 end
 always@(posedge clk) begin
@@ -213,8 +214,10 @@ end
 always@(*) begin
   entry[7:0] = dev[entry_a0];
   entry[15:8] = dev[entry_a1];
-  io_i = dev[io_i_a0] << dev[io_os_a0];
-  io_oe = dev[io_oe_a0] << dev[io_os_a0];
+  io_oe = (io_os < 0) ? (dev[io_oe_a0] >> (0-io_os)) : (dev[io_oe_a0] << io_os);
+  io_ie = dev[io_ie_a0];
+  io_i = (io_os < 0) ? (dev[io_i_a0] >> (0-io_os)) : (dev[io_i_a0] << io_os);
+  io_c = (io_is < 0) ? ((io & io_ie) >> (0-io_is)) : ((io & io_ie) << io_is);
   if(sel_rom) rdata = rdata_rom;
   else if(sel_dev) rdata = rdata_dev;
   else rdata = rdata_ram;
