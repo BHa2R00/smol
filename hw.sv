@@ -176,7 +176,7 @@ wire vld, lck;
 pll pll (rstb, clk, vld, lck);
 wire [23:0] ADDR;
 localparam [23:0] data = 'h2000;
-localparam [23:0] size = 'h2100;
+localparam [23:0] size = 'h0100 + data;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
@@ -246,7 +246,7 @@ cpu cpu
   .halt  (halt),
   .clk   (lck)
 );
-reg [63:0] io_i, io_c, io_oe, io_ie;
+reg [63:0] io_i, io_o, io_c, io_oe, io_ie;
 wire signed [7:0] io_os = dev[io_os_a0];
 wire signed [7:0] io_is = dev[io_is_a0];
 generate
@@ -255,6 +255,26 @@ for(io_k=0;io_k<=63;io_k=io_k+1) begin : io_bth
 assign io[io_k] = io_oe[io_k] ? io_i[io_k] : 1'bz;
 end
 endgenerate
+always@(posedge clk) begin
+  io_i = (io_os < 0) ? 
+    ({dev[io_i_a7],
+      dev[io_i_a6],
+      dev[io_i_a5],
+      dev[io_i_a4],
+      dev[io_i_a3],
+      dev[io_i_a2],
+      dev[io_i_a1],
+      dev[io_i_a0]} >> (0-io_os)) : 
+    ({dev[io_i_a7],
+      dev[io_i_a6],
+      dev[io_i_a5],
+      dev[io_i_a4],
+      dev[io_i_a3],
+      dev[io_i_a2],
+      dev[io_i_a1],
+      dev[io_i_a0]} << io_os);
+  io_c = (io_is < 0) ? (io_o >> (0-io_is)) : (io_o << io_is);
+end
 assign ADDR = {dev[page_a0],addr};
 reg [7:0] rdata_rom, rdata_dev, rdata_ram;
 initial $readmemh("rom.memh", rom);
@@ -337,24 +357,7 @@ always@(*) begin
       dev[io_ie_a2],
       dev[io_ie_a1],
       dev[io_ie_a0]};
-  io_i = (io_os < 0) ? 
-    ({dev[io_i_a7],
-      dev[io_i_a6],
-      dev[io_i_a5],
-      dev[io_i_a4],
-      dev[io_i_a3],
-      dev[io_i_a2],
-      dev[io_i_a1],
-      dev[io_i_a0]} >> (0-io_os)) : 
-    ({dev[io_i_a7],
-      dev[io_i_a6],
-      dev[io_i_a5],
-      dev[io_i_a4],
-      dev[io_i_a3],
-      dev[io_i_a2],
-      dev[io_i_a1],
-      dev[io_i_a0]} << io_os);
-  io_c = (io_is < 0) ? ((io & io_ie) >> (0-io_is)) : ((io & io_ie) << io_is);
+  io_o = io & io_ie;
   if(sel_rom) rdata = rdata_rom;
   else if(sel_dev) rdata = rdata_dev;
   else rdata = rdata_ram;
@@ -419,7 +422,7 @@ assign io[2] = key1;
 
 reg rx,uclk;
 initial uclk=0;
-always #6510.417 uclk=~uclk;
+always #2930.1875 uclk=~uclk;
 always@(negedge rstb or posedge uclk) begin
   if(!rstb) rx=1;
   else begin
