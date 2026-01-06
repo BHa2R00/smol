@@ -122,14 +122,58 @@ end
 endmodule
 
 
+module pll (input rstb, clk, output reg vld, lck);
+`ifdef SIM
+initial lck = 0;
+always #5 lck = ~lck;
+`else
+wire [4:0] sub_wire0;
+wire [0:0] sub_wire4 = 1'h0;
+wire [0:0] sub_wire1 = sub_wire0[0:0];
+always@(*) lck = sub_wire1;
+wire  sub_wire2 = clk;
+wire [1:0] sub_wire3 = {sub_wire4, sub_wire2};
+altpll altpll_component (
+  .inclk (sub_wire3),
+  .clk (sub_wire0),
+  .areset (1'b0),
+  .clkena ({6{1'b1}}),
+  .clkswitch (1'b0),
+  .configupdate (1'b0),
+  .pfdena (1'b1),
+  .phasecounterselect ({4{1'b1}}),
+  .phasestep (1'b1),
+  .phaseupdown (1'b1),
+  .pllena (1'b1));
+defparam
+  altpll_component.bandwidth_type = "AUTO",
+  altpll_component.clk0_duty_cycle = 50,
+  altpll_component.clk0_divide_by = 2,
+  altpll_component.clk0_multiply_by = 4,
+  altpll_component.clk0_phase_shift = "0",
+  altpll_component.compensate_clock = "CLK0",
+  altpll_component.inclk0_input_frequency = 50000,
+  altpll_component.intended_device_family = "Cyclone IV E",
+  altpll_component.lpm_hint = "CBX_MODULE_PREFIX=pll_pixel_clock",
+  altpll_component.lpm_type = "altpll",
+  altpll_component.operation_mode = "NORMAL",
+  altpll_component.pll_type = "AUTO",
+  altpll_component.width_clock = 5;
+`endif
+always@(negedge rstb or posedge lck) if(!rstb) vld <= 0; else vld <= 1;
+endmodule
+
+
 module top
 (
   output [7:0] debug, 
-  inout [7:0] io, 
+  inout [63:0] io, 
   output halt,
   input rstb, clk 
 );
 
+wire vld, lck;
+pll pll (rstb, clk, vld, lck);
 wire [23:0] ADDR;
 localparam [23:0] data = 'h2000;
 localparam [23:0] size = 'h2100;
@@ -137,23 +181,51 @@ localparam [23:0] size = 'h2100;
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
 wire sel_rom = &{ADDR>=0,ADDR<=data-1};
-localparam [23:0]  page_a0 = data+'h0;
-localparam [23:0] entry_a0 = data+'h1;
-localparam [23:0] entry_a1 = data+'h2;
-localparam [23:0] io_os_a0 = data+'h3;
-localparam [23:0] io_is_a0 = data+'h4;
-localparam [23:0]  io_c_a0 = data+'h5;
-localparam [23:0]  io_i_a0 = data+'h6;
-localparam [23:0] io_oe_a0 = data+'h7;
-localparam [23:0] io_ie_a0 = data+'h8;
+localparam [23:0]  page_a0 = data+'h00;
+localparam [23:0] entry_a0 = data+'h01;
+localparam [23:0] entry_a1 = data+'h02;
+localparam [23:0] io_os_a0 = data+'h03;
+localparam [23:0] io_is_a0 = data+'h04;
+localparam [23:0]  io_c_a0 = data+'h05;
+localparam [23:0]  io_c_a1 = data+'h06;
+localparam [23:0]  io_c_a2 = data+'h07;
+localparam [23:0]  io_c_a3 = data+'h08;
+localparam [23:0]  io_c_a4 = data+'h09;
+localparam [23:0]  io_c_a5 = data+'h0a;
+localparam [23:0]  io_c_a6 = data+'h0b;
+localparam [23:0]  io_c_a7 = data+'h0c;
+localparam [23:0]  io_i_a0 = data+'h0d;
+localparam [23:0]  io_i_a1 = data+'h0e;
+localparam [23:0]  io_i_a2 = data+'h0f;
+localparam [23:0]  io_i_a3 = data+'h10;
+localparam [23:0]  io_i_a4 = data+'h11;
+localparam [23:0]  io_i_a5 = data+'h12;
+localparam [23:0]  io_i_a6 = data+'h13;
+localparam [23:0]  io_i_a7 = data+'h14;
+localparam [23:0] io_oe_a0 = data+'h15;
+localparam [23:0] io_oe_a1 = data+'h16;
+localparam [23:0] io_oe_a2 = data+'h17;
+localparam [23:0] io_oe_a3 = data+'h18;
+localparam [23:0] io_oe_a4 = data+'h19;
+localparam [23:0] io_oe_a5 = data+'h1a;
+localparam [23:0] io_oe_a6 = data+'h1b;
+localparam [23:0] io_oe_a7 = data+'h1c;
+localparam [23:0] io_ie_a0 = data+'h1d;
+localparam [23:0] io_ie_a1 = data+'h1e;
+localparam [23:0] io_ie_a2 = data+'h1f;
+localparam [23:0] io_ie_a3 = data+'h20;
+localparam [23:0] io_ie_a4 = data+'h21;
+localparam [23:0] io_ie_a5 = data+'h22;
+localparam [23:0] io_ie_a6 = data+'h23;
+localparam [23:0] io_ie_a7 = data+'h24;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] dev[data+'h0:data+'h8];
-wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h8};
+reg [7:0] dev[data+'h0:data+'h24];
+wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h24};
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] ram[data+'h9:size-1];
-wire sel_ram = &{ADDR>=data+'h9,ADDR<=size-1};
+reg [7:0] ram[data+'h25:size-1];
+wire sel_ram = &{ADDR>=data+'h25,ADDR<=size-1};
 reg          ready;
 reg  [ 7: 0] rdata;
 wire [ 7: 0] wdata;
@@ -169,29 +241,47 @@ cpu cpu
   .addr  (addr),
   .write (write),
   .valid (valid),
-  .rstb  (rstb),
+  .rstb  (vld),
   .entry (entry),
   .halt  (halt),
-  .clk   (clk)
+  .clk   (lck)
 );
-reg [7:0] io_i, io_c, io_oe, io_ie;
+reg [63:0] io_i, io_c, io_oe, io_ie;
 wire signed [7:0] io_os = dev[io_os_a0];
 wire signed [7:0] io_is = dev[io_is_a0];
 generate
 genvar io_k;
-for(io_k=0;io_k<=7;io_k=io_k+1) begin : io_bth 
+for(io_k=0;io_k<=63;io_k=io_k+1) begin : io_bth 
 assign io[io_k] = io_oe[io_k] ? io_i[io_k] : 1'bz;
 end
 endgenerate
 assign ADDR = {dev[page_a0],addr};
 reg [7:0] rdata_rom, rdata_dev, rdata_ram;
 initial $readmemh("rom.memh", rom);
-always@(negedge rstb or posedge clk) begin
-  if(!rstb) begin
+always@(negedge vld or posedge lck) begin
+  if(!vld) begin
     ready <= 1'b0;
     dev[page_a0] = 0;
     dev[entry_a0] = 0;
     dev[entry_a1] = 0;
+    dev[io_os_a0] = 0;
+    dev[io_is_a0] = 0;
+    dev[io_oe_a0] = 0;
+    dev[io_oe_a1] = 0;
+    dev[io_oe_a2] = 0;
+    dev[io_oe_a3] = 0;
+    dev[io_oe_a4] = 0;
+    dev[io_oe_a5] = 0;
+    dev[io_oe_a6] = 0;
+    dev[io_oe_a7] = 0;
+    dev[io_ie_a0] = 0;
+    dev[io_ie_a1] = 0;
+    dev[io_ie_a2] = 0;
+    dev[io_ie_a3] = 0;
+    dev[io_ie_a4] = 0;
+    dev[io_ie_a5] = 0;
+    dev[io_ie_a6] = 0;
+    dev[io_ie_a7] = 0;
   end
   else begin
     ready <= valid;
@@ -199,10 +289,17 @@ always@(negedge rstb or posedge clk) begin
       if(write) dev[ADDR] = wdata;
       else rdata_dev = dev[ADDR];
     end
-    dev[io_c_a0] = io_c;
+    dev[io_c_a0] = io_c[07:00];
+    dev[io_c_a1] = io_c[15:08];
+    dev[io_c_a2] = io_c[23:16];
+    dev[io_c_a3] = io_c[31:24];
+    dev[io_c_a4] = io_c[39:32];
+    dev[io_c_a5] = io_c[47:40];
+    dev[io_c_a6] = io_c[55:48];
+    dev[io_c_a7] = io_c[63:56];
   end
 end
-always@(posedge clk) begin
+always@(posedge lck) begin
   if(&{~ready,valid,sel_rom}) begin
     rdata_rom <= rom[ADDR];
   end
@@ -214,9 +311,49 @@ end
 always@(*) begin
   entry[7:0] = dev[entry_a0];
   entry[15:8] = dev[entry_a1];
-  io_oe = (io_os < 0) ? (dev[io_oe_a0] >> (0-io_os)) : (dev[io_oe_a0] << io_os);
-  io_ie = dev[io_ie_a0];
-  io_i = (io_os < 0) ? (dev[io_i_a0] >> (0-io_os)) : (dev[io_i_a0] << io_os);
+  io_oe = (io_os < 0) ? 
+    ({dev[io_oe_a7],
+      dev[io_oe_a6],
+      dev[io_oe_a5],
+      dev[io_oe_a4],
+      dev[io_oe_a3],
+      dev[io_oe_a2],
+      dev[io_oe_a1],
+      dev[io_oe_a0]} >> (0-io_os)) : 
+    ({dev[io_oe_a7],
+      dev[io_oe_a6],
+      dev[io_oe_a5],
+      dev[io_oe_a4],
+      dev[io_oe_a3],
+      dev[io_oe_a2],
+      dev[io_oe_a1],
+      dev[io_oe_a0]} << io_os);
+  io_ie = 
+     {dev[io_ie_a7],
+      dev[io_ie_a6],
+      dev[io_ie_a5],
+      dev[io_ie_a4],
+      dev[io_ie_a3],
+      dev[io_ie_a2],
+      dev[io_ie_a1],
+      dev[io_ie_a0]};
+  io_i = (io_os < 0) ? 
+    ({dev[io_i_a7],
+      dev[io_i_a6],
+      dev[io_i_a5],
+      dev[io_i_a4],
+      dev[io_i_a3],
+      dev[io_i_a2],
+      dev[io_i_a1],
+      dev[io_i_a0]} >> (0-io_os)) : 
+    ({dev[io_i_a7],
+      dev[io_i_a6],
+      dev[io_i_a5],
+      dev[io_i_a4],
+      dev[io_i_a3],
+      dev[io_i_a2],
+      dev[io_i_a1],
+      dev[io_i_a0]} << io_os);
   io_c = (io_is < 0) ? ((io & io_ie) >> (0-io_is)) : ((io & io_ie) << io_is);
   if(sel_rom) rdata = rdata_rom;
   else if(sel_dev) rdata = rdata_dev;
@@ -233,7 +370,7 @@ endmodule
 `ifdef SIM
 module tb;
 
-wire [7:0] io;
+wire [63:0] io;
 wire halt;
 reg rstb, clk;
 top top 
@@ -253,17 +390,24 @@ wire [7:0] ram_0x05 = top.dev[top.data+'h05];
 wire [7:0] ram_0x06 = top.dev[top.data+'h06];
 wire [7:0] ram_0x07 = top.dev[top.data+'h07];
 wire [7:0] ram_0x08 = top.dev[top.data+'h08];
-wire [7:0] ram_0x09 = top.ram[top.data+'h09];
-wire [7:0] ram_0x0a = top.ram[top.data+'h0a];
-wire [7:0] ram_0x0b = top.ram[top.data+'h0b];
-wire [7:0] ram_0x0c = top.ram[top.data+'h0c];
-wire [7:0] ram_0x0d = top.ram[top.data+'h0d];
-wire [7:0] ram_0x0e = top.ram[top.data+'h0e];
-wire [7:0] ram_0x0f = top.ram[top.data+'h0f];
-wire [7:0] ram_0x10 = top.ram[top.data+'h10];
-wire [7:0] ram_0x11 = top.ram[top.data+'h11];
-wire [7:0] ram_0x12 = top.ram[top.data+'h12];
-wire [7:0] ram_0x13 = top.ram[top.data+'h13];
+wire [7:0] ram_0x09 = top.dev[top.data+'h09];
+wire [7:0] ram_0x0a = top.dev[top.data+'h0a];
+wire [7:0] ram_0x0b = top.dev[top.data+'h0b];
+wire [7:0] ram_0x0c = top.dev[top.data+'h0c];
+wire [7:0] ram_0x0d = top.dev[top.data+'h0d];
+wire [7:0] ram_0x0e = top.dev[top.data+'h0e];
+wire [7:0] ram_0x0f = top.dev[top.data+'h0f];
+wire [7:0] ram_0x10 = top.dev[top.data+'h10];
+wire [7:0] ram_0x11 = top.dev[top.data+'h11];
+wire [7:0] ram_0x12 = top.dev[top.data+'h12];
+wire [7:0] ram_0x13 = top.dev[top.data+'h13];
+wire [7:0] ram_0x25 = top.ram[top.data+'h25];
+wire [7:0] ram_0x26 = top.ram[top.data+'h26];
+wire [7:0] ram_0x27 = top.ram[top.data+'h27];
+wire [7:0] ram_0x28 = top.ram[top.data+'h28];
+wire [7:0] ram_0x29 = top.ram[top.data+'h29];
+wire [7:0] ram_0x2a = top.ram[top.data+'h2a];
+wire [7:0] ram_0x2b = top.ram[top.data+'h2b];
 
 reg key1;
 initial key1 = 0;
@@ -275,7 +419,7 @@ assign io[2] = key1;
 
 reg rx,uclk;
 initial uclk=0;
-always #13020.834 uclk=~uclk;
+always #6510.417 uclk=~uclk;
 always@(negedge rstb or posedge uclk) begin
   if(!rstb) rx=1;
   else begin
@@ -300,11 +444,13 @@ initial begin
   $fsdbDumpfile("hw.fsdb");
   $fsdbDumpvars(0,tb);
   `endif
-  $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x",
+  $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,",
   $time,
   ram_0x00, ram_0x01, ram_0x02, ram_0x03, ram_0x04, ram_0x05, ram_0x06, ram_0x07, 
   ram_0x08, ram_0x09, ram_0x0a, ram_0x0b, ram_0x0c, ram_0x0d, ram_0x0e, ram_0x0f, 
   ram_0x10, ram_0x11, ram_0x12, ram_0x13, 
+  ram_0x25, ram_0x26, ram_0x27, ram_0x28,
+  ram_0x29, ram_0x2a, ram_0x2b, 
   );
   clk = 0;
   rstb = 0;

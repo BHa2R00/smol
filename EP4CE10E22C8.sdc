@@ -1,0 +1,5 @@
+create_clock -name {clk} -period 20.000 [get_ports {clk}]
+create_clock -name {lck} -period 10.000 [get_ports {pll/lck}]
+set_input_delay -clock clk 2.0 [get_ports {io[*]}]
+set_output_delay -clock clk 3.0 [get_ports {io[*]}]
+set_false_path -from [get_ports rstb]
