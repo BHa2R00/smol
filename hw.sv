@@ -164,6 +164,41 @@ always@(negedge rstb or posedge lck) if(!rstb) vld <= 0; else vld <= 1;
 endmodule
 
 
+module counter 
+#(
+  parameter MSB=7 
+)
+(
+  output reg [7:0] tmr, 
+  input [7:0] from, 
+  output reg vld, 
+  input set, 
+  input [7:0] sel, 
+  output reg [MSB:0] cnt, 
+  input rstb, clk 
+);
+
+wire [MSB:0] c = {~cnt[MSB-1:0],clk};
+genvar k;
+generate
+for(k=0;k<=MSB;k=k+1) begin : bth
+always@(negedge rstb or posedge c[k]) if(!rstb) cnt[k] <= 0; else cnt[k] <= ~cnt[k];
+end
+endgenerate
+wire lck = cnt[sel];
+always@(negedge set or posedge lck) begin
+  if(!set) begin
+    vld <= 0;
+    tmr <= from;
+  end
+  else begin
+    vld <= 1;
+    if(|tmr) tmr <= tmr - 1;
+  end
+end
+endmodule
+
+
 module top
 (
   output [7:0] debug, 
@@ -181,51 +216,63 @@ localparam [23:0] size = 'h0100 + data;
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
 wire sel_rom = &{ADDR>=0,ADDR<=data-1};
-localparam [23:0]  page_a0 = data+'h00;
-localparam [23:0] entry_a0 = data+'h01;
-localparam [23:0] entry_a1 = data+'h02;
-localparam [23:0] io_os_a0 = data+'h03;
-localparam [23:0] io_is_a0 = data+'h04;
-localparam [23:0]  io_c_a0 = data+'h05;
-localparam [23:0]  io_c_a1 = data+'h06;
-localparam [23:0]  io_c_a2 = data+'h07;
-localparam [23:0]  io_c_a3 = data+'h08;
-localparam [23:0]  io_c_a4 = data+'h09;
-localparam [23:0]  io_c_a5 = data+'h0a;
-localparam [23:0]  io_c_a6 = data+'h0b;
-localparam [23:0]  io_c_a7 = data+'h0c;
-localparam [23:0]  io_i_a0 = data+'h0d;
-localparam [23:0]  io_i_a1 = data+'h0e;
-localparam [23:0]  io_i_a2 = data+'h0f;
-localparam [23:0]  io_i_a3 = data+'h10;
-localparam [23:0]  io_i_a4 = data+'h11;
-localparam [23:0]  io_i_a5 = data+'h12;
-localparam [23:0]  io_i_a6 = data+'h13;
-localparam [23:0]  io_i_a7 = data+'h14;
-localparam [23:0] io_oe_a0 = data+'h15;
-localparam [23:0] io_oe_a1 = data+'h16;
-localparam [23:0] io_oe_a2 = data+'h17;
-localparam [23:0] io_oe_a3 = data+'h18;
-localparam [23:0] io_oe_a4 = data+'h19;
-localparam [23:0] io_oe_a5 = data+'h1a;
-localparam [23:0] io_oe_a6 = data+'h1b;
-localparam [23:0] io_oe_a7 = data+'h1c;
-localparam [23:0] io_ie_a0 = data+'h1d;
-localparam [23:0] io_ie_a1 = data+'h1e;
-localparam [23:0] io_ie_a2 = data+'h1f;
-localparam [23:0] io_ie_a3 = data+'h20;
-localparam [23:0] io_ie_a4 = data+'h21;
-localparam [23:0] io_ie_a5 = data+'h22;
-localparam [23:0] io_ie_a6 = data+'h23;
-localparam [23:0] io_ie_a7 = data+'h24;
+localparam [23:0]     page_a0 = data+'h00;
+localparam [23:0]    entry_a0 = data+'h01;
+localparam [23:0]    entry_a1 = data+'h02;
+localparam [23:0]    io_os_a0 = data+'h03;
+localparam [23:0]    io_is_a0 = data+'h04;
+localparam [23:0]     io_c_a0 = data+'h05;
+localparam [23:0]     io_c_a1 = data+'h06;
+localparam [23:0]     io_c_a2 = data+'h07;
+localparam [23:0]     io_c_a3 = data+'h08;
+localparam [23:0]     io_c_a4 = data+'h09;
+localparam [23:0]     io_c_a5 = data+'h0a;
+localparam [23:0]     io_c_a6 = data+'h0b;
+localparam [23:0]     io_c_a7 = data+'h0c;
+localparam [23:0]     io_i_a0 = data+'h0d;
+localparam [23:0]     io_i_a1 = data+'h0e;
+localparam [23:0]     io_i_a2 = data+'h0f;
+localparam [23:0]     io_i_a3 = data+'h10;
+localparam [23:0]     io_i_a4 = data+'h11;
+localparam [23:0]     io_i_a5 = data+'h12;
+localparam [23:0]     io_i_a6 = data+'h13;
+localparam [23:0]     io_i_a7 = data+'h14;
+localparam [23:0]    io_oe_a0 = data+'h15;
+localparam [23:0]    io_oe_a1 = data+'h16;
+localparam [23:0]    io_oe_a2 = data+'h17;
+localparam [23:0]    io_oe_a3 = data+'h18;
+localparam [23:0]    io_oe_a4 = data+'h19;
+localparam [23:0]    io_oe_a5 = data+'h1a;
+localparam [23:0]    io_oe_a6 = data+'h1b;
+localparam [23:0]    io_oe_a7 = data+'h1c;
+localparam [23:0]    io_ie_a0 = data+'h1d;
+localparam [23:0]    io_ie_a1 = data+'h1e;
+localparam [23:0]    io_ie_a2 = data+'h1f;
+localparam [23:0]    io_ie_a3 = data+'h20;
+localparam [23:0]    io_ie_a4 = data+'h21;
+localparam [23:0]    io_ie_a5 = data+'h22;
+localparam [23:0]    io_ie_a6 = data+'h23;
+localparam [23:0]    io_ie_a7 = data+'h24;
+localparam [23:0]      cnt_a0 = data+'h25;
+localparam [23:0]      cnt_a1 = data+'h26;
+localparam [23:0]      cnt_a2 = data+'h27;
+localparam [23:0]      cnt_a3 = data+'h28;
+localparam [23:0]      cnt_a4 = data+'h29;
+localparam [23:0]      cnt_a5 = data+'h2a;
+localparam [23:0]      cnt_a6 = data+'h2b;
+localparam [23:0]      cnt_a7 = data+'h2c;
+localparam [23:0]  tmr_sel_a0 = data+'h2d;
+localparam [23:0]  tmr_set_a0 = data+'h2e;
+localparam [23:0] tmr_from_a0 = data+'h2f;
+localparam [23:0]      tmr_a0 = data+'h30;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] dev[data+'h0:data+'h24];
-wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h24};
+reg [7:0] dev[data+'h0:data+'h30];
+wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h30};
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] ram[data+'h25:size-1];
-wire sel_ram = &{ADDR>=data+'h25,ADDR<=size-1};
+reg [7:0] ram[data+'h31:size-1];
+wire sel_ram = &{ADDR>=data+'h31,ADDR<=size-1};
 reg          ready;
 reg  [ 7: 0] rdata;
 wire [ 7: 0] wdata;
@@ -256,6 +303,23 @@ assign io[io_k] = io_oe[io_k] ? io_i[io_k] : 1'bz;
 end
 endgenerate
 always@(posedge clk) begin
+  io_oe = (io_os < 0) ? 
+    ({dev[io_oe_a7],
+      dev[io_oe_a6],
+      dev[io_oe_a5],
+      dev[io_oe_a4],
+      dev[io_oe_a3],
+      dev[io_oe_a2],
+      dev[io_oe_a1],
+      dev[io_oe_a0]} >> (0-io_os)) : 
+    ({dev[io_oe_a7],
+      dev[io_oe_a6],
+      dev[io_oe_a5],
+      dev[io_oe_a4],
+      dev[io_oe_a3],
+      dev[io_oe_a2],
+      dev[io_oe_a1],
+      dev[io_oe_a0]} << io_os);
   io_i = (io_os < 0) ? 
     ({dev[io_i_a7],
       dev[io_i_a6],
@@ -273,8 +337,30 @@ always@(posedge clk) begin
       dev[io_i_a2],
       dev[io_i_a1],
       dev[io_i_a0]} << io_os);
+end
+always@(posedge lck) begin
+  io_ie = 
+     {dev[io_ie_a7],
+      dev[io_ie_a6],
+      dev[io_ie_a5],
+      dev[io_ie_a4],
+      dev[io_ie_a3],
+      dev[io_ie_a2],
+      dev[io_ie_a1],
+      dev[io_ie_a0]};
+  io_o = io & io_ie;
   io_c = (io_is < 0) ? (io_o >> (0-io_is)) : (io_o << io_is);
 end
+wire [7:0] tmr;
+reg [7:0] tmr_from, tmr_sel;
+wire tmr_vld;
+reg tmr_set;
+wire [63:0] cnt; 
+counter #(63) counter (
+.tmr(tmr), .from(tmr_from), 
+.vld(tmr_vld), .set(tmr_set), .sel(tmr_sel), 
+.cnt(cnt), 
+.rstb(rstb), .clk(clk));
 assign ADDR = {dev[page_a0],addr};
 reg [7:0] rdata_rom, rdata_dev, rdata_ram;
 initial $readmemh("rom.memh", rom);
@@ -302,21 +388,36 @@ always@(negedge vld or posedge lck) begin
     dev[io_ie_a5] = 0;
     dev[io_ie_a6] = 0;
     dev[io_ie_a7] = 0;
+    dev[tmr_sel_a0] = 0;
+    dev[tmr_set_a0] = 0;
+    dev[tmr_from_a0] = 0;
   end
   else begin
     ready <= valid;
     if(&{~ready,valid,sel_dev}) begin
       if(write) dev[ADDR] = wdata;
-      else rdata_dev = dev[ADDR];
+      else begin
+        dev[io_c_a0] = io_c[07:00];
+        dev[io_c_a1] = io_c[15:08];
+        dev[io_c_a2] = io_c[23:16];
+        dev[io_c_a3] = io_c[31:24];
+        dev[io_c_a4] = io_c[39:32];
+        dev[io_c_a5] = io_c[47:40];
+        dev[io_c_a6] = io_c[55:48];
+        dev[io_c_a7] = io_c[63:56];
+        dev[cnt_a0] = cnt[07:00];
+        dev[cnt_a1] = cnt[15:08];
+        dev[cnt_a2] = cnt[23:16];
+        dev[cnt_a3] = cnt[31:24];
+        dev[cnt_a4] = cnt[39:32];
+        dev[cnt_a5] = cnt[47:40];
+        dev[cnt_a6] = cnt[55:48];
+        dev[cnt_a7] = cnt[63:56];
+        dev[tmr_set_a0] = {7'd0,tmr_vld};
+        dev[tmr_a0] = tmr;
+        rdata_dev = dev[ADDR];
+      end
     end
-    dev[io_c_a0] = io_c[07:00];
-    dev[io_c_a1] = io_c[15:08];
-    dev[io_c_a2] = io_c[23:16];
-    dev[io_c_a3] = io_c[31:24];
-    dev[io_c_a4] = io_c[39:32];
-    dev[io_c_a5] = io_c[47:40];
-    dev[io_c_a6] = io_c[55:48];
-    dev[io_c_a7] = io_c[63:56];
   end
 end
 always@(posedge lck) begin
@@ -331,33 +432,9 @@ end
 always@(*) begin
   entry[7:0] = dev[entry_a0];
   entry[15:8] = dev[entry_a1];
-  io_oe = (io_os < 0) ? 
-    ({dev[io_oe_a7],
-      dev[io_oe_a6],
-      dev[io_oe_a5],
-      dev[io_oe_a4],
-      dev[io_oe_a3],
-      dev[io_oe_a2],
-      dev[io_oe_a1],
-      dev[io_oe_a0]} >> (0-io_os)) : 
-    ({dev[io_oe_a7],
-      dev[io_oe_a6],
-      dev[io_oe_a5],
-      dev[io_oe_a4],
-      dev[io_oe_a3],
-      dev[io_oe_a2],
-      dev[io_oe_a1],
-      dev[io_oe_a0]} << io_os);
-  io_ie = 
-     {dev[io_ie_a7],
-      dev[io_ie_a6],
-      dev[io_ie_a5],
-      dev[io_ie_a4],
-      dev[io_ie_a3],
-      dev[io_ie_a2],
-      dev[io_ie_a1],
-      dev[io_ie_a0]};
-  io_o = io & io_ie;
+  tmr_sel = dev[tmr_sel_a0];
+  tmr_set = dev[tmr_set_a0];
+  tmr_from = dev[tmr_from_a0];
   if(sel_rom) rdata = rdata_rom;
   else if(sel_dev) rdata = rdata_dev;
   else rdata = rdata_ram;
@@ -366,11 +443,13 @@ end
 assign debug[0] = io[0];
 assign debug[1] = io[1];
 assign debug[2] = io[2];
+assign debug[3] = cnt[28];
 
 endmodule
 
 
 `ifdef SIM
+`include "../W25Q128JVxIM.v"
 module tb;
 
 wire [63:0] io;
@@ -383,6 +462,7 @@ top top
   .rstb(rstb), .clk(clk) 
 );
 
+initial clk = 0;
 always #10 clk = ~clk;
 wire [7:0] ram_0x00 = top.dev[top.data+'h00];
 wire [7:0] ram_0x01 = top.dev[top.data+'h01];
@@ -404,13 +484,13 @@ wire [7:0] ram_0x10 = top.dev[top.data+'h10];
 wire [7:0] ram_0x11 = top.dev[top.data+'h11];
 wire [7:0] ram_0x12 = top.dev[top.data+'h12];
 wire [7:0] ram_0x13 = top.dev[top.data+'h13];
-wire [7:0] ram_0x25 = top.ram[top.data+'h25];
-wire [7:0] ram_0x26 = top.ram[top.data+'h26];
-wire [7:0] ram_0x27 = top.ram[top.data+'h27];
-wire [7:0] ram_0x28 = top.ram[top.data+'h28];
-wire [7:0] ram_0x29 = top.ram[top.data+'h29];
-wire [7:0] ram_0x2a = top.ram[top.data+'h2a];
-wire [7:0] ram_0x2b = top.ram[top.data+'h2b];
+wire [7:0] ram_0x31 = top.ram[top.data+'h31];
+wire [7:0] ram_0x32 = top.ram[top.data+'h32];
+wire [7:0] ram_0x33 = top.ram[top.data+'h33];
+wire [7:0] ram_0x34 = top.ram[top.data+'h34];
+wire [7:0] ram_0x35 = top.ram[top.data+'h35];
+wire [7:0] ram_0x36 = top.ram[top.data+'h36];
+wire [7:0] ram_0x37 = top.ram[top.data+'h37];
 
 reg key1;
 initial key1 = 0;
@@ -422,7 +502,7 @@ assign io[2] = key1;
 
 reg rx,uclk;
 initial uclk=0;
-always #2930.1875 uclk=~uclk;
+always #4340.278 uclk=~uclk;
 always@(negedge rstb or posedge uclk) begin
   if(!rstb) rx=1;
   else begin
@@ -438,6 +518,8 @@ always@(negedge rstb or posedge uclk) begin
 end
 assign io[1] = rx;
 
+W25Q128JVxIM flash(.CSn(io[8]), .CLK(io[9]), .DIO(io[10]), .DO(io[11]));
+
 initial begin
  `ifdef FST
   $dumpfile("hw.fst");
@@ -452,10 +534,9 @@ initial begin
   ram_0x00, ram_0x01, ram_0x02, ram_0x03, ram_0x04, ram_0x05, ram_0x06, ram_0x07, 
   ram_0x08, ram_0x09, ram_0x0a, ram_0x0b, ram_0x0c, ram_0x0d, ram_0x0e, ram_0x0f, 
   ram_0x10, ram_0x11, ram_0x12, ram_0x13, 
-  ram_0x25, ram_0x26, ram_0x27, ram_0x28,
-  ram_0x29, ram_0x2a, ram_0x2b, 
+  ram_0x31, ram_0x32, ram_0x33, ram_0x34,
+  ram_0x35, ram_0x36, ram_0x37, 
   );
-  clk = 0;
   rstb = 0;
   repeat(3) @(posedge clk); rstb = 1;
   @(posedge halt);

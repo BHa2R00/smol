@@ -18,6 +18,7 @@ set_location_assignment PIN_Y17  -to halt
 set_location_assignment PIN_AA3  -to debug[0]
 set_location_assignment PIN_AB3  -to debug[1]
 set_location_assignment PIN_AB4  -to debug[2]
+set_location_assignment PIN_AA17 -to debug[3]
 set_global_assignment -name SDC_FILE EP4CE15F23C8.sdc
 execute_flow -compile
 export_assignments
