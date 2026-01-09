@@ -125,7 +125,7 @@ endmodule
 module pll (input rstb, clk, output reg vld, lck);
 `ifdef SIM
 initial lck = 0;
-always #5 lck = ~lck;
+always #4 lck = ~lck;
 `else
 wire [4:0] sub_wire0;
 wire [0:0] sub_wire4 = 1'h0;
@@ -149,7 +149,7 @@ defparam
   altpll_component.bandwidth_type = "AUTO",
   altpll_component.clk0_duty_cycle = 50,
   altpll_component.clk0_divide_by = 2,
-  altpll_component.clk0_multiply_by = 4,
+  altpll_component.clk0_multiply_by = 5,
   altpll_component.clk0_phase_shift = "0",
   altpll_component.compensate_clock = "CLK0",
   altpll_component.inclk0_input_frequency = 50000,
@@ -216,63 +216,67 @@ localparam [23:0] size = 'h0100 + data;
 (* ramstyle = "M9K" *)
 reg [7:0] rom[0:data-1];
 wire sel_rom = &{ADDR>=0,ADDR<=data-1};
-localparam [23:0]     page_a0 = data+'h00;
-localparam [23:0]    entry_a0 = data+'h01;
-localparam [23:0]    entry_a1 = data+'h02;
-localparam [23:0]    io_os_a0 = data+'h03;
-localparam [23:0]    io_is_a0 = data+'h04;
-localparam [23:0]     io_c_a0 = data+'h05;
-localparam [23:0]     io_c_a1 = data+'h06;
-localparam [23:0]     io_c_a2 = data+'h07;
-localparam [23:0]     io_c_a3 = data+'h08;
-localparam [23:0]     io_c_a4 = data+'h09;
-localparam [23:0]     io_c_a5 = data+'h0a;
-localparam [23:0]     io_c_a6 = data+'h0b;
-localparam [23:0]     io_c_a7 = data+'h0c;
-localparam [23:0]     io_i_a0 = data+'h0d;
-localparam [23:0]     io_i_a1 = data+'h0e;
-localparam [23:0]     io_i_a2 = data+'h0f;
-localparam [23:0]     io_i_a3 = data+'h10;
-localparam [23:0]     io_i_a4 = data+'h11;
-localparam [23:0]     io_i_a5 = data+'h12;
-localparam [23:0]     io_i_a6 = data+'h13;
-localparam [23:0]     io_i_a7 = data+'h14;
-localparam [23:0]    io_oe_a0 = data+'h15;
-localparam [23:0]    io_oe_a1 = data+'h16;
-localparam [23:0]    io_oe_a2 = data+'h17;
-localparam [23:0]    io_oe_a3 = data+'h18;
-localparam [23:0]    io_oe_a4 = data+'h19;
-localparam [23:0]    io_oe_a5 = data+'h1a;
-localparam [23:0]    io_oe_a6 = data+'h1b;
-localparam [23:0]    io_oe_a7 = data+'h1c;
-localparam [23:0]    io_ie_a0 = data+'h1d;
-localparam [23:0]    io_ie_a1 = data+'h1e;
-localparam [23:0]    io_ie_a2 = data+'h1f;
-localparam [23:0]    io_ie_a3 = data+'h20;
-localparam [23:0]    io_ie_a4 = data+'h21;
-localparam [23:0]    io_ie_a5 = data+'h22;
-localparam [23:0]    io_ie_a6 = data+'h23;
-localparam [23:0]    io_ie_a7 = data+'h24;
-localparam [23:0]      cnt_a0 = data+'h25;
-localparam [23:0]      cnt_a1 = data+'h26;
-localparam [23:0]      cnt_a2 = data+'h27;
-localparam [23:0]      cnt_a3 = data+'h28;
-localparam [23:0]      cnt_a4 = data+'h29;
-localparam [23:0]      cnt_a5 = data+'h2a;
-localparam [23:0]      cnt_a6 = data+'h2b;
-localparam [23:0]      cnt_a7 = data+'h2c;
-localparam [23:0]  tmr_sel_a0 = data+'h2d;
-localparam [23:0]  tmr_set_a0 = data+'h2e;
-localparam [23:0] tmr_from_a0 = data+'h2f;
-localparam [23:0]      tmr_a0 = data+'h30;
+localparam [23:0]      s0b_a0 = data+'h00;
+localparam [23:0]      s0p_a0 = data+'h01;
+localparam [23:0]      s1b_a0 = data+'h02;
+localparam [23:0]      s1p_a0 = data+'h03;
+localparam [23:0]     page_a0 = data+'h04;
+localparam [23:0]    entry_a0 = data+'h05;
+localparam [23:0]    entry_a1 = data+'h06;
+localparam [23:0]    io_os_a0 = data+'h07;
+localparam [23:0]    io_is_a0 = data+'h08;
+localparam [23:0]     io_c_a0 = data+'h09;
+localparam [23:0]     io_c_a1 = data+'h0a;
+localparam [23:0]     io_c_a2 = data+'h0b;
+localparam [23:0]     io_c_a3 = data+'h0c;
+localparam [23:0]     io_c_a4 = data+'h0d;
+localparam [23:0]     io_c_a5 = data+'h0e;
+localparam [23:0]     io_c_a6 = data+'h0f;
+localparam [23:0]     io_c_a7 = data+'h10;
+localparam [23:0]     io_i_a0 = data+'h11;
+localparam [23:0]     io_i_a1 = data+'h12;
+localparam [23:0]     io_i_a2 = data+'h13;
+localparam [23:0]     io_i_a3 = data+'h14;
+localparam [23:0]     io_i_a4 = data+'h15;
+localparam [23:0]     io_i_a5 = data+'h16;
+localparam [23:0]     io_i_a6 = data+'h17;
+localparam [23:0]     io_i_a7 = data+'h18;
+localparam [23:0]    io_oe_a0 = data+'h19;
+localparam [23:0]    io_oe_a1 = data+'h1a;
+localparam [23:0]    io_oe_a2 = data+'h1b;
+localparam [23:0]    io_oe_a3 = data+'h1c;
+localparam [23:0]    io_oe_a4 = data+'h1d;
+localparam [23:0]    io_oe_a5 = data+'h1e;
+localparam [23:0]    io_oe_a6 = data+'h1f;
+localparam [23:0]    io_oe_a7 = data+'h20;
+localparam [23:0]    io_ie_a0 = data+'h21;
+localparam [23:0]    io_ie_a1 = data+'h22;
+localparam [23:0]    io_ie_a2 = data+'h23;
+localparam [23:0]    io_ie_a3 = data+'h24;
+localparam [23:0]    io_ie_a4 = data+'h25;
+localparam [23:0]    io_ie_a5 = data+'h26;
+localparam [23:0]    io_ie_a6 = data+'h27;
+localparam [23:0]    io_ie_a7 = data+'h28;
+localparam [23:0]      cnt_a0 = data+'h29;
+localparam [23:0]      cnt_a1 = data+'h2a;
+localparam [23:0]      cnt_a2 = data+'h2b;
+localparam [23:0]      cnt_a3 = data+'h2c;
+localparam [23:0]      cnt_a4 = data+'h2d;
+localparam [23:0]      cnt_a5 = data+'h2e;
+localparam [23:0]      cnt_a6 = data+'h2f;
+localparam [23:0]      cnt_a7 = data+'h30;
+localparam [23:0]  tmr_sel_a0 = data+'h31;
+localparam [23:0]  tmr_set_a0 = data+'h32;
+localparam [23:0] tmr_from_a0 = data+'h33;
+localparam [23:0]      tmr_a0 = data+'h34;
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] dev[data+'h0:data+'h30];
-wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h30};
+reg [7:0] dev[data+'h0:data+'h34];
+wire sel_dev = &{ADDR>=data+'h0,ADDR<=data+'h34};
 //(* ram_style="block" *) 
 (* ramstyle = "M9K" *)
-reg [7:0] ram[data+'h31:size-1];
-wire sel_ram = &{ADDR>=data+'h31,ADDR<=size-1};
+reg [7:0] ram[data+'h35:size-1];
+wire sel_ram = &{ADDR>=data+'h35,ADDR<=size-1};
 reg          ready;
 reg  [ 7: 0] rdata;
 wire [ 7: 0] wdata;
@@ -293,6 +297,7 @@ cpu cpu
   .halt  (halt),
   .clk   (lck)
 );
+reg [7:0] s0b, s0p, s1b, s1p;
 reg [63:0] io_i, io_o, io_c, io_oe, io_ie;
 wire signed [7:0] io_os = dev[io_os_a0];
 wire signed [7:0] io_is = dev[io_is_a0];
@@ -302,6 +307,7 @@ for(io_k=0;io_k<=63;io_k=io_k+1) begin : io_bth
 assign io[io_k] = io_oe[io_k] ? io_i[io_k] : 1'bz;
 end
 endgenerate
+reg io_valid, io_valid_d;
 always@(posedge clk) begin
   io_oe = (io_os < 0) ? 
     ({dev[io_oe_a7],
@@ -337,6 +343,8 @@ always@(posedge clk) begin
       dev[io_i_a2],
       dev[io_i_a1],
       dev[io_i_a0]} << io_os);
+   io_valid_d = valid;
+   io_valid = io_valid_d;
 end
 always@(posedge lck) begin
   io_ie = 
@@ -361,7 +369,16 @@ counter #(63) counter (
 .vld(tmr_vld), .set(tmr_set), .sel(tmr_sel), 
 .cnt(cnt), 
 .rstb(rstb), .clk(clk));
-assign ADDR = {dev[page_a0],addr};
+assign ADDR = 
+  (addr==({16'd0,s0b}+data)) ? 
+    (write ? 
+      {dev[page_a0],({16'd0,s0p}+{16'd0,s0b}+data)} :
+      {dev[page_a0],({16'd0,s0p}+{16'd0,s0b}+data-16'd1)}) : 
+  (addr==({16'd0,s1b}+data)) ? 
+    (write ? 
+      {dev[page_a0],({16'd0,s1p}+{16'd0,s1b}+data)} :
+      {dev[page_a0],({16'd0,s1p}+{16'd0,s1b}+data-16'd1)}) : 
+   {dev[page_a0],addr};
 reg [7:0] rdata_rom, rdata_dev, rdata_ram;
 initial $readmemh("rom.memh", rom);
 always@(negedge vld or posedge lck) begin
@@ -391,31 +408,55 @@ always@(negedge vld or posedge lck) begin
     dev[tmr_sel_a0] = 0;
     dev[tmr_set_a0] = 0;
     dev[tmr_from_a0] = 0;
+    dev[s0b_a0] = size-data-1;
+    dev[s0p_a0] = 0;
+    dev[s1b_a0] = size-data-1;
+    dev[s1p_a0] = 0;
   end
   else begin
-    ready <= valid;
-    if(&{~ready,valid,sel_dev}) begin
-      if(write) dev[ADDR] = wdata;
+    ready <=  
+      &{ADDR>=io_c_a1,ADDR<=io_ie_a7} ? io_valid : 
+      valid;
+    if(&{~ready,valid}) begin
+      if(write) begin
+        if(sel_dev) begin
+          dev[ADDR] = wdata;
+        end
+        if(addr==({16'd0,s0b}+data)) begin
+          dev[s0p_a0] = dev[s0p_a0]+1;
+        end
+        if(addr==({16'd0,s1b}+data)) begin
+          dev[s1p_a0] = dev[s1p_a0]+1;
+        end
+      end
       else begin
-        dev[io_c_a0] = io_c[07:00];
-        dev[io_c_a1] = io_c[15:08];
-        dev[io_c_a2] = io_c[23:16];
-        dev[io_c_a3] = io_c[31:24];
-        dev[io_c_a4] = io_c[39:32];
-        dev[io_c_a5] = io_c[47:40];
-        dev[io_c_a6] = io_c[55:48];
-        dev[io_c_a7] = io_c[63:56];
-        dev[cnt_a0] = cnt[07:00];
-        dev[cnt_a1] = cnt[15:08];
-        dev[cnt_a2] = cnt[23:16];
-        dev[cnt_a3] = cnt[31:24];
-        dev[cnt_a4] = cnt[39:32];
-        dev[cnt_a5] = cnt[47:40];
-        dev[cnt_a6] = cnt[55:48];
-        dev[cnt_a7] = cnt[63:56];
-        dev[tmr_set_a0] = {7'd0,tmr_vld};
-        dev[tmr_a0] = tmr;
-        rdata_dev = dev[ADDR];
+        if(sel_dev) begin
+          dev[io_c_a0] = io_c[07:00];
+          dev[io_c_a1] = io_c[15:08];
+          dev[io_c_a2] = io_c[23:16];
+          dev[io_c_a3] = io_c[31:24];
+          dev[io_c_a4] = io_c[39:32];
+          dev[io_c_a5] = io_c[47:40];
+          dev[io_c_a6] = io_c[55:48];
+          dev[io_c_a7] = io_c[63:56];
+          dev[cnt_a0] = cnt[07:00];
+          dev[cnt_a1] = cnt[15:08];
+          dev[cnt_a2] = cnt[23:16];
+          dev[cnt_a3] = cnt[31:24];
+          dev[cnt_a4] = cnt[39:32];
+          dev[cnt_a5] = cnt[47:40];
+          dev[cnt_a6] = cnt[55:48];
+          dev[cnt_a7] = cnt[63:56];
+          dev[tmr_set_a0] = {7'd0,tmr_vld};
+          dev[tmr_a0] = tmr;
+          rdata_dev = dev[ADDR];
+        end
+        if(addr==({16'd0,s0b}+data)) begin
+          dev[s0p_a0] = dev[s0p_a0]-1;
+        end
+        if(addr==({16'd0,s1b}+data)) begin
+          dev[s1p_a0] = dev[s1p_a0]-1;
+        end
       end
     end
   end
@@ -435,6 +476,10 @@ always@(*) begin
   tmr_sel = dev[tmr_sel_a0];
   tmr_set = dev[tmr_set_a0];
   tmr_from = dev[tmr_from_a0];
+  s0b = dev[s0b_a0];
+  s0p = dev[s0p_a0];
+  s1b = dev[s1b_a0];
+  s1p = dev[s1p_a0];
   if(sel_rom) rdata = rdata_rom;
   else if(sel_dev) rdata = rdata_dev;
   else rdata = rdata_ram;
@@ -484,16 +529,25 @@ wire [7:0] ram_0x10 = top.dev[top.data+'h10];
 wire [7:0] ram_0x11 = top.dev[top.data+'h11];
 wire [7:0] ram_0x12 = top.dev[top.data+'h12];
 wire [7:0] ram_0x13 = top.dev[top.data+'h13];
-wire [7:0] ram_0x31 = top.ram[top.data+'h31];
-wire [7:0] ram_0x32 = top.ram[top.data+'h32];
-wire [7:0] ram_0x33 = top.ram[top.data+'h33];
-wire [7:0] ram_0x34 = top.ram[top.data+'h34];
+wire [7:0] ram_0x31 = top.dev[top.data+'h31];
+wire [7:0] ram_0x32 = top.dev[top.data+'h32];
+wire [7:0] ram_0x33 = top.dev[top.data+'h33];
+wire [7:0] ram_0x34 = top.dev[top.data+'h34];
 wire [7:0] ram_0x35 = top.ram[top.data+'h35];
 wire [7:0] ram_0x36 = top.ram[top.data+'h36];
 wire [7:0] ram_0x37 = top.ram[top.data+'h37];
+wire [7:0] ram_0x38 = top.ram[top.data+'h38];
+wire [7:0] ram_0x39 = top.ram[top.data+'h39];
+wire [7:0] ram_0x3a = top.ram[top.data+'h3a];
+wire [7:0] ram_0x3b = top.ram[top.data+'h3b];
+wire [7:0] ram_0x3c = top.ram[top.data+'h3c];
+wire [7:0] ram_0x3d = top.ram[top.data+'h3d];
+wire [7:0] ram_0x3e = top.ram[top.data+'h3e];
+wire [7:0] ram_0x3f = top.ram[top.data+'h3f];
+wire [7:0] ram_0x40 = top.ram[top.data+'h40];
 
 reg key1;
-initial key1 = 0;
+initial key1 = 1;
 always@(posedge clk) begin
   repeat(100000) @(posedge clk);
   key1 = ~key1;
@@ -529,13 +583,15 @@ initial begin
   $fsdbDumpfile("hw.fsdb");
   $fsdbDumpvars(0,tb);
   `endif
-  $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,",
+  $monitor("%t: ram[0x00:0x0f] : %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,,%04x, %04x,%04x,%04x,%04x, %04x,%04x,%04x,%04x, ",
   $time,
   ram_0x00, ram_0x01, ram_0x02, ram_0x03, ram_0x04, ram_0x05, ram_0x06, ram_0x07, 
   ram_0x08, ram_0x09, ram_0x0a, ram_0x0b, ram_0x0c, ram_0x0d, ram_0x0e, ram_0x0f, 
   ram_0x10, ram_0x11, ram_0x12, ram_0x13, 
   ram_0x31, ram_0x32, ram_0x33, ram_0x34,
-  ram_0x35, ram_0x36, ram_0x37, 
+  ram_0x35, ram_0x36, ram_0x37, ram_0x38, 
+  ram_0x39, ram_0x3a, ram_0x3b, ram_0x3c, 
+  ram_0x3d, ram_0x3e, ram_0x3f, ram_0x40, 
   );
   rstb = 0;
   repeat(3) @(posedge clk); rstb = 1;

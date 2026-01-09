@@ -1,7 +1,12 @@
 #!/usr/bin/sbcl --script 
 (defmacro argv () `sb-ext:*posix-argv*)
-(defmacro uint2float (u) `(sb-kernel:make-single-float ,u))
-(defmacro float2uint (f) `(sb-kernel:single-float-bits ,f))
+(defun float2bytes (f)
+  (let ((u (sb-kernel:single-float-bits f)))
+    (list 
+      (ldb (byte 8  0) u) 
+      (ldb (byte 8  8) u) 
+      (ldb (byte 8 16) u) 
+      (ldb (byte 8 24) u))))
 (defun <- (l a b)
   (cond
     ((equalp l a) b)
@@ -157,8 +162,9 @@
             (or
               (stringp (cadr(car a)))
               (listp (cadr(car a)))
-              (vectorp (cadr(car a))))) ;; map : ((char/value "string"/#(vector)) body... )
-          (let ((l (coerce (cadr(car a)) 'list))
+              (vectorp (cadr(car a)))
+              (floatp (cadr(car a))))) ;; map : ((char/value/float "string"/#(vector)) body... )
+          (let ((l (coerce (if (floatp (cadr(car a))) (float2bytes (cadr(car a))) (cadr(car a))) 'list))
                 (i (car(car a)))
                 (b (cdr a))
                 (buf ""))
@@ -192,14 +198,16 @@
                    (let ((p (nth 2 v))
                          (l (nth 1 v)))
                      (setf p (+ l (ash p -1)))
-                     ;(format t "p=~X~%" p)
+                     ;(format t "v=~X p=~X~%" v p)
                      (if (not(member-if 
                                #'(lambda (vv)
                                   (let*((p0 (ash (nth 2 vv) -1))
                                         (p1 (+ p0 (nth 1 vv))))
                                     (if (and 
                                           (>= p p0) (< p p1)
-                                          (> (+ (cadr a) p) p0) (<= (+ (cadr a) p) p1)
+                                          (if (< (cadr a) (nth 1 vv))
+                                            (and (> (+ (cadr a) p) p0) (<= (+ (cadr a) p) p1))
+                                            t)
                                           )
                                       t nil)))
                                *value*))
@@ -220,7 +228,7 @@
             (equal nil (nth 1 a))
             (or
               (assoc (car a) *value*)
-              (assoc (car a) *label*))) ;; free value|label : (name ()) 
+              (assoc (car a) *label*))) ;; free value/label : (name ()) 
           (let ()
             (if (assoc (car a) *value*) 
               (setf 
@@ -232,7 +240,8 @@
                           (if *debug* (format t "free ~4,'0x = ~A~%" (nth 2 i) (nth 0 i)))
                           t)
                         nil)) 
-                  *value*)))
+                  *value*
+                  :count 1)))
             (if (assoc (car a) *label*) 
               (setf 
                 *label* 
@@ -243,7 +252,8 @@
                           (if *debug* (format t "free ~4,'0x = ~A~%" (nth 1 i) (nth 0 i)))
                           t)
                         nil)) 
-                  *label*)))
+                  *label*
+                  :count 1)))
             ))
          (t ;; label: (name) 
           (let ()
