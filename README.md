@@ -1009,6 +1009,7 @@ free value|label : (name ())
 hellowhorld
 <pre>
 (inc "init.asm")
+(main)
 (set io_i_a0 (const 1))
 (set io_oe_a0 (const #b1))
 (set io_os_a0 (const 0))
