@@ -9,7 +9,7 @@ clk/rstb ──▶ [PC,IR,A,D,M] ──▶ Instr Decode ──▶ ALU+Flags
                  │                         │
                  └───────── Memory IF ◀─────┘
                      addr/wdata/rdata/write/valid/ready
-
+```
 
 # software
 ## assembler
