@@ -1,6 +1,15 @@
 # smol
 (^ w ^) a smol cpu hardware and software design based on the <a href='https://en.wikipedia.org/wiki/Hack_computer'>hack computer</a>
 
+### CPU Datapath 
+```text
+clk/rstb ──▶ [PC,IR,A,D,M] ──▶ Instr Decode ──▶ ALU+Flags
+                 ▲                │                │
+                 │                └────────────────┘
+                 │                         │
+                 └───────── Memory IF ◀─────┘
+                     addr/wdata/rdata/write/valid/ready
+
 # software
 ## assembler
 sw.lisp options:
@@ -1008,7 +1017,7 @@ free value|label : (name ())
 #### example
 hellowhorld
 <pre>
-(inc "init.asm")
+(inc "init.as")
 (main)
 (set io_i_a0 (const 1))
 (set io_oe_a0 (const #b1))
